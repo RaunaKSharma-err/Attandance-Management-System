@@ -1,153 +1,160 @@
-import { Toaster } from "./components/ui/toaster";
-import { Toaster as Sonner } from "./components/ui/sonner";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Layout from "./components/Layout";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import StudentDashboard from "./pages/StudentDashboard";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import NotFound from "./pages/NotFound";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Layout } from "./components/Layout";
+import { Login } from "./pages/Login";
+import { Register } from "./pages/Register";
+import { StudentDashboard } from "./pages/StudentDashboard";
+import { TeacherAdminDashboard } from "./pages/TeacherAdminDashboard";
+import { MarkAttendance } from "./pages/MarkAttendance";
+import { Unauthorized } from "./pages/unauthorized";
+import { useAuth } from "./contexts/AuthContext";
 
-const queryClient = new QueryClient();
-
-// Dashboard wrapper component that routes based on user role
-
-const Dashboard = () => {
+const DashboardRouter: React.FC = () => {
   const { user } = useAuth();
+  console.log(user);
 
-  if (user?.role === "student") {
-    return <StudentDashboard />;
-  } else if (user?.role === "teacher" || user?.role === "admin") {
-    return <TeacherDashboard />;
-  }
+  if (!user) return null;
 
-  return <div>Invalid role</div>;
+  return user.role === "student" ? (
+    <StudentDashboard />
+  ) : (
+    <TeacherAdminDashboard />
+  );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <Router>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Protected routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <DashboardRouter />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <div className="text-center py-8">
-                      <h1 className="text-2xl font-bold mb-4">Profile Page</h1>
-                      <p className="text-muted-foreground">
-                        Profile management coming soon...
-                      </p>
-                    </div>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/mark-attendance"
+            element={
+              <ProtectedRoute allowedRoles={["teacher", "admin"]}>
+                <Layout>
+                  <MarkAttendance />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Student-only routes */}
-            <Route
-              path="/attendance"
-              element={
-                <ProtectedRoute roles={["student"]}>
-                  <Layout>
-                    <div className="text-center py-8">
-                      <h1 className="text-2xl font-bold mb-4">My Attendance</h1>
-                      <p className="text-muted-foreground">
-                        Detailed attendance view coming soon...
-                      </p>
-                    </div>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+          {/* Student-only routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Profile
+                    </h2>
+                    <p className="text-gray-600">Profile page coming soon...</p>
+                  </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Teacher/Admin routes */}
-            <Route
-              path="/students"
-              element={
-                <ProtectedRoute roles={["teacher", "admin"]}>
-                  <Layout>
-                    <div className="text-center py-8">
-                      <h1 className="text-2xl font-bold mb-4">
-                        Students Management
-                      </h1>
-                      <p className="text-muted-foreground">
-                        Student management coming soon...
-                      </p>
-                    </div>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/mark-attendance"
-              element={
-                <ProtectedRoute roles={["teacher", "admin"]}>
-                  <Layout>
-                    <div className="text-center py-8">
-                      <h1 className="text-2xl font-bold mb-4">
-                        Mark Attendance
-                      </h1>
-                      <p className="text-muted-foreground">
-                        Quick attendance marking coming soon...
-                      </p>
-                    </div>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Redirects */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route
-              path="/unauthorized"
-              element={
-                <div className="min-h-screen flex items-center justify-center bg-background">
-                  <div className="text-center">
-                    <h1 className="text-4xl font-bold mb-4">403</h1>
-                    <p className="text-xl text-muted-foreground mb-4">
-                      Access Denied
-                    </p>
-                    <p className="text-muted-foreground">
-                      You don't have permission to access this page.
+          <Route
+            path="/attendance"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      My Attendance
+                    </h2>
+                    <p className="text-gray-600">
+                      Detailed attendance view coming soon...
                     </p>
                   </div>
-                </div>
-              }
-            />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+          {/* Teacher/Admin only routes */}
+          <Route
+            path="/students"
+            element={
+              <ProtectedRoute allowedRoles={["teacher", "admin"]}>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Students
+                    </h2>
+                    <p className="text-gray-600">
+                      Student management page coming soon...
+                    </p>
+                  </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute allowedRoles={["teacher", "admin"]}>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Reports
+                    </h2>
+                    <p className="text-gray-600">
+                      Attendance reports coming soon...
+                    </p>
+                  </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/export"
+            element={
+              <ProtectedRoute allowedRoles={["teacher", "admin"]}>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Export Data
+                    </h2>
+                    <p className="text-gray-600">
+                      Export functionality coming soon...
+                    </p>
+                  </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </Router>
+  );
+}
 
 export default App;
