@@ -18,7 +18,6 @@ import { useAuth } from "./contexts/AuthContext";
 
 const DashboardRouter: React.FC = () => {
   const { user } = useAuth();
-  console.log(user);
 
   if (!user) return null;
 

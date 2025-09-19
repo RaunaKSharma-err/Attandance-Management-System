@@ -40,25 +40,29 @@ export const TeacherAdminDashboard: React.FC = () => {
         attendanceAPI.getAttendanceByDate(today),
       ]);
 
-      // Correctly access the students array
-      const allStudents = Array.isArray(studentsRes.data.students)
+      const allStudents: User[] = Array.isArray(studentsRes.data?.students)
         ? studentsRes.data.students.filter((u: User) => u.role === "student")
         : [];
 
-      const attendance = Array.isArray(attendanceRes.data)
-        ? attendanceRes.data
+      const attendance: AttendanceRecord[] = Array.isArray(
+        attendanceRes.data?.records
+      )
+        ? attendanceRes.data.records
         : [];
+      console.log(attendance);
 
       setStudents(allStudents);
       setTodayAttendance(attendance);
 
       const presentCount = attendance.filter(
-        (record: AttendanceRecord) => record.status === "present"
+        (r) => r.status === "present"
       ).length;
+      const attendancePercentage =
+        allStudents.length > 0
+          ? Number(((presentCount / allStudents.length) * 100).toFixed(1))
+          : 0;
 
       const totalStudents = allStudents.length;
-      const attendancePercentage =
-        totalStudents > 0 ? (presentCount / totalStudents) * 100 : 0;
 
       setStats({
         totalStudents,
@@ -86,6 +90,7 @@ export const TeacherAdminDashboard: React.FC = () => {
       </div>
     );
   }
+  console.log(todayAttendance);
 
   return (
     <div className="space-y-6 w-[75vw] min-w-md">
@@ -184,7 +189,7 @@ export const TeacherAdminDashboard: React.FC = () => {
         </div>
 
         <div className="p-6">
-          {todayAttendance.length > 0 ? (
+          {todayAttendance && todayAttendance.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {todayAttendance.map((record) => (
                 <div
@@ -198,13 +203,10 @@ export const TeacherAdminDashboard: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium text-gray-900">
-                        {typeof record.student === "object"
-                          ? record.student.name
-                          : "Student"}
+                        {record.studentId?.name || "Student"}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {typeof record.student === "object" &&
-                          record.student.rollNumber}
+                        {record.studentId?.rollNumber}
                       </p>
                     </div>
                     <div className="text-right">
@@ -218,7 +220,9 @@ export const TeacherAdminDashboard: React.FC = () => {
                         {record.status}
                       </span>
                       <p className="text-xs text-gray-500 mt-1">
-                        {new Date(record.markedAt).toLocaleTimeString()}
+                        {record.createdAt
+                          ? new Date(record.createdAt).toLocaleTimeString()
+                          : ""}
                       </p>
                     </div>
                   </div>
@@ -269,44 +273,55 @@ export const TeacherAdminDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {students.slice(0, 10).map((student) => {
-                const todayRecord = todayAttendance.find((record) =>
-                  typeof record.student === "object"
-                    ? record.student._id === student._id
-                    : record.student === student._id
-                );
+              {students && students.length > 0 ? (
+                students.slice(0, 10).map((student) => {
+                  const todayRecord = todayAttendance?.find((record) =>
+                    typeof record.studentId === "object"
+                      ? record.studentId?._id === student._id
+                      : record.studentId === student._id
+                  );
 
-                return (
-                  <tr key={student._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {student.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.rollNumber || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {todayRecord ? (
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            todayRecord.status === "present"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {todayRecord.status}
-                        </span>
-                      ) : (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                          Not marked
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr key={student._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {student.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.rollNumber || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {todayRecord ? (
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              todayRecord.status === "present"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {todayRecord.status}
+                          </span>
+                        ) : (
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Not marked
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-4 text-center text-sm text-gray-500"
+                  >
+                    No students available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -8,12 +8,24 @@ export interface User {
 
 export interface AttendanceRecord {
   _id: string;
-  student: string | User;
   date: string;
   status: 'present' | 'absent';
-  markedBy: string | User;
-  markedAt: string;
+  studentId: {
+    _id: string;
+    name: string;
+    email: string;
+    rollNumber: string;
+  };
+  markedBy: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
+
 
 export interface AttendanceSummary {
   totalDays: number;
