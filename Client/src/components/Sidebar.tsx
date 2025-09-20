@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Home, Users, Calendar, User, BarChart3, FileText } from "lucide-react";
+import { Home, Users, Calendar, User, BarChart3, FileText, IdCard } from "lucide-react";
 
 export const Sidebar: React.FC = () => {
   const { user } = useAuth();
@@ -16,6 +16,7 @@ export const Sidebar: React.FC = () => {
     { path: "/dashboard", icon: Home, label: "Dashboard" },
     { path: "/students", icon: Users, label: "Students" },
     { path: "/mark-attendance", icon: Calendar, label: "Mark Attendance" },
+    { path: "/assign-id", icon: IdCard, label: "assign-id" },
     { path: "/reports", icon: BarChart3, label: "Reports" },
     { path: "/export", icon: FileText, label: "Export Data" },
   ];

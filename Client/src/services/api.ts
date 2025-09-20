@@ -29,6 +29,9 @@ export const usersAPI = {
   getMe: () => api.get('/users/me'),
   getUsers: (page?: number, limit?: number) =>
     api.get('/users', { params: { page, limit } }),
+  getStudents: () => api.get('/users/students'),
+  assignRFID: (studentId: string, rfid: string) =>
+    api.post(`/attendance/users/${studentId}/assign-rfid`, { rfid }),
 };
 
 // Attendance API

@@ -15,6 +15,7 @@ import { TeacherAdminDashboard } from "./pages/TeacherAdminDashboard";
 import { MarkAttendance } from "./pages/MarkAttendance";
 import { Unauthorized } from "./pages/unauthorized";
 import { useAuth } from "./contexts/AuthContext";
+import AssignRFIDPage from "./pages/AssignRFID";
 
 const DashboardRouter: React.FC = () => {
   const { user } = useAuth();
@@ -126,6 +127,17 @@ function App() {
                       Attendance reports coming soon...
                     </p>
                   </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/assign-id"
+            element={
+              <ProtectedRoute allowedRoles={["teacher", "admin"]}>
+                <Layout>
+                  <AssignRFIDPage />
                 </Layout>
               </ProtectedRoute>
             }

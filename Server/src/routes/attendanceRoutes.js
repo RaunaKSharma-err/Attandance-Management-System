@@ -4,6 +4,8 @@ const {
   getStudentAttendance,
   getAttendanceByDate,
   getStudentSummary,
+  markAttendanceFromIoT,
+  assignRFID,
 } = require("../controllers/attendanceController");
 const { protect } = require("../middlewares/auth");
 const { requireRole } = require("../middlewares/roles");
@@ -19,5 +21,7 @@ router.get(
   getAttendanceByDate
 );
 router.get("/summary/:id", protect, getStudentSummary);
+router.post("/iot/attendance", markAttendanceFromIoT);
+router.post("/users/:id/assign-rfid", assignRFID);
 
 module.exports = router;

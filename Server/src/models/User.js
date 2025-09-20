@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    rfidTag: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   {
     timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" },

@@ -9,9 +9,9 @@ export const Navbar: React.FC = () => {
     <nav className="bg-white shadow-sm border-b w-full border-gray-200">
       <div className="px-6 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">
+          <h4 className="text-2xl font-semibold text-gray-800">
             Attendance Management System
-          </h1>
+          </h4>
         </div>
 
         <div className="flex items-center space-x-4">

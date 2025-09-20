@@ -28,7 +28,8 @@ export const Login: React.FC = () => {
     } catch (err: unknown) {
       // Narrow the error type
       if (err instanceof Error) {
-        setError(err.message);
+        setError("invalid credentials");
+        console.log(err.message);
       } else {
         setError("An unexpected error occurred");
       }

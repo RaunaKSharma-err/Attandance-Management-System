@@ -104,9 +104,59 @@ const getStudentSummary = asyncHandler(async (req, res) => {
   });
 });
 
+// POST /api/iot/attendance
+const markAttendanceFromIoT = asyncHandler(async (req, res) => {
+  const { rfid } = req.body;
+  if (!rfid) return res.status(400).json({ message: "RFID tag required" });
+
+  const student = await User.findOne({ rfidTag: rfid });
+  if (!student) {
+    return res
+      .status(404)
+      .json({ message: "Student not registered with this RFID" });
+  }
+
+  const today = normalizeDate(new Date());
+
+  const record = await Attendance.findOneAndUpdate(
+    { studentId: student._id, date: today },
+    {
+      $set: { status: "present", markedBy: student._id, markedAt: new Date() },
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  return res.status(200).json({
+    message: "Attendance marked successfully via IoT",
+    attendance: record,
+  });
+});
+
+// POST /api/users/:id/assign-rfid
+const assignRFID = asyncHandler(async (req, res) => {
+  const { rfid } = req.body;
+  const { id } = req.params;
+
+  if (!rfid) return res.status(400).json({ message: "RFID required" });
+  if (!mongoose.isValidObjectId(id))
+    return res.status(400).json({ message: "Invalid ID" });
+
+  const user = await User.findById(id);
+  if (!user || user.role !== "student") {
+    return res.status(404).json({ message: "Student not found" });
+  }
+
+  user.rfidTag = rfid;
+  await user.save();
+
+  return res.status(200).json({ message: "RFID assigned", student: user });
+});
+
 module.exports = {
   markAttendance,
   getStudentAttendance,
   getAttendanceByDate,
   getStudentSummary,
+  markAttendanceFromIoT,
+  assignRFID,
 };
