@@ -268,7 +268,7 @@ export const MarkAttendance: React.FC = () => {
       {/* Attendance Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-sm border"
+        className="bg-white rounded-lg shadow-sm border h-[340px] overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden"
       >
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Student List</h2>

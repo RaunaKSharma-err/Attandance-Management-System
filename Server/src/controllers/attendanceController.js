@@ -106,10 +106,11 @@ const getStudentSummary = asyncHandler(async (req, res) => {
 
 // POST /api/iot/attendance
 const markAttendanceFromIoT = asyncHandler(async (req, res) => {
-  const { rfid } = req.body;
-  if (!rfid) return res.status(400).json({ message: "RFID tag required" });
+  const { rfidTag } = req.body;
 
-  const student = await User.findOne({ rfidTag: rfid });
+  if (!rfidTag) return res.status(400).json({ message: "RFID tag required" });
+
+  const student = await User.findOne({ rfidTag: rfidTag });
   if (!student) {
     return res
       .status(404)

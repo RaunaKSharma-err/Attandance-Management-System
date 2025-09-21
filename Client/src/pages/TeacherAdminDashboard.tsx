@@ -93,7 +93,7 @@ export const TeacherAdminDashboard: React.FC = () => {
   console.log(todayAttendance);
 
   return (
-    <div className="space-y-6 w-[75vw] min-w-md">
+    <div className="space-y-6 w-[77vw] min-w-md h-[85vh] overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-lg">
         <h1 className="text-2xl font-bold">
